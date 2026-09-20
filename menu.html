@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Menú compartido · Cocinario</title>
+<style>
+  :root { --bg: #FBF8F4; --card: #fff; --text: #211D18; --soft: #6B625A; --accent: #E2613C; --line: #EAE3DA; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 440px; margin: 0 auto; padding: 48px 20px; text-align: center; }
+  .pot { width: 84px; height: 84px; border-radius: 50%; background: #D75730; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 42px; }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  p { color: var(--soft); line-height: 1.5; margin: 0 0 20px; }
+  a.btn { display: block; padding: 15px 18px; border-radius: 12px; font-weight: 700; text-decoration: none; margin-bottom: 10px; }
+  .primary { background: var(--accent); color: #fff; }
+  .ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+  small { color: var(--soft); display: block; margin-top: 24px; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="pot">🍲</div>
+  <h1>Te han compartido un menú</h1>
+  <p id="msg">Abriendo Cocinario…</p>
+  <a id="open" class="btn primary" href="#">Abrir en Cocinario</a>
+  <a id="install" class="btn ghost" href="https://play.google.com/store/apps/details?id=com.cocinario.app">No tengo la app · Instalar</a>
+  <small>El menú viaja dentro del enlace: nada se guarda en ningún servidor. Instala Cocinario y vuelve a tocar el enlace.</small>
+</main>
+<script>
+  // El menú va detrás del "#" (el navegador no lo manda al servidor). La app lo recibe
+  // como cocinario://menu?m=… ; en Android se usa un intent con vuelta a Play si no está.
+  (function () {
+    var m = (location.hash || '').slice(1);
+    var msg = document.getElementById('msg');
+    var open = document.getElementById('open');
+    if (!/^[A-Za-z0-9_-]{8,}$/.test(m)) {
+      msg.textContent = 'Este enlace está incompleto. Pídele a quien te lo mandó que lo vuelva a compartir.';
+      open.style.display = 'none';
+      return;
+    }
+    var deep = 'cocinario://menu?m=' + m;
+    var play = 'https://play.google.com/store/apps/details?id=com.cocinario.app';
+    var android = /android/i.test(navigator.userAgent);
+    var href = android
+      ? 'intent://menu?m=' + m + '#Intent;scheme=cocinario;package=com.cocinario.app;S.browser_fallback_url=' + encodeURIComponent(play) + ';end'
+      : deep;
+    open.href = href;
+    // Intento automático; si no pasa nada (no está instalada), el botón queda a mano.
+    setTimeout(function () { location.href = href; }, 300);
+    setTimeout(function () { msg.textContent = 'Si no se ha abierto, toca el botón.'; }, 2500);
+  })();
+</script>
+</body>
+</html>
